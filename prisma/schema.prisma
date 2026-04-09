@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model City {
+  id         Int     @id @default(autoincrement())
+  slug       String  @unique
+  name       String
+  country    String
+  region     String
+  year       Int
+  coverColor String
+  summary    String
+  heroQuote  String?
+  coords     String  @default("")
+  coverPhoto String  @default("")
+  coverThumb String  @default("")
+
+  photos  Photo[]
+  videos  Video[]
+  guide   Guide?
+  story   Story?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Photo {
+  id      Int     @id @default(autoincrement())
+  src     String
+  caption String?
+  order   Int     @default(0)
+  cityId  Int
+  city    City    @relation(fields: [cityId], references: [id], onDelete: Cascade)
+}
+
+model Video {
+  id        Int    @id @default(autoincrement())
+  title     String
+  embedUrl  String
+  thumbnail String
+  order     Int    @default(0)
+  cityId    Int
+  city      City   @relation(fields: [cityId], references: [id], onDelete: Cascade)
+}
+
+model Guide {
+  id        Int    @id @default(autoincrement())
+  stay      String
+  eat       String
+  transport String
+  tips      String
+  cityId    Int    @unique
+  city      City   @relation(fields: [cityId], references: [id], onDelete: Cascade)
+}
+
+model Story {
+  id         Int    @id @default(autoincrement())
+  title      String
+  date       String
+  content    String
+  coverImage String
+  cityId     Int    @unique
+  city       City   @relation(fields: [cityId], references: [id], onDelete: Cascade)
+}
+
+// Hero 拍立得
+model HeroPolaroid {
+  id      Int    @id @default(autoincrement())
+  name    String
+  date    String
+  tag     String
+  img     String
+  color   String @default("#1e1e2e")
+  x       Float  @default(50)
+  y       Float  @default(50)
+  rot     Float  @default(0)
+  spd     Float  @default(0.02)
+  float   String @default("A")
+  delay   Float  @default(0.5)
+  order   Int    @default(0)
+}
+
+// 首页"最近更新"滑动卡片
+model RecentUpdate {
+  id       Int    @id @default(autoincrement())
+  type     String
+  title    String
+  excerpt  String
+  city     String
+  citySlug String
+  bg       String
+  order    Int    @default(0)
+}
+
+// 摄影页每个城市组
+model PhotographyCity {
+  id      Int                @id @default(autoincrement())
+  city    String
+  country String
+  slug    String
+  order   Int                @default(0)
+  photos  PhotographyPhoto[]
+}
+
+model PhotographyPhoto {
+  id       Int             @id @default(autoincrement())
+  src      String
+  caption  String
+  order    Int             @default(0)
+  cityId   Int
+  city     PhotographyCity @relation(fields: [cityId], references: [id], onDelete: Cascade)
+}

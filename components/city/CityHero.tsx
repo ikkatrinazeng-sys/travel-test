@@ -7,7 +7,7 @@ import { City } from '@/types'
 // Unsplash photo mapping by slug
 const CITY_PHOTOS: Record<string, string> = {
   paris:        'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1600&q=85',
-  beaune:       'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=1600&q=85',
+  beaune:       '/beaune-winery.jpg',
   dijon:        'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1600&q=85',
   amsterdam:    'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1600&q=85',
   rome:         'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1600&q=85',
@@ -58,8 +58,11 @@ export default function CityHero({ city }: { city: City }) {
           z-index: 1;
         }
 
-        /* Back link */
-        .ch-back { position: absolute; top: 5rem; left: 3rem; z-index: 10; display: flex; align-items: center; gap: 8px; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.45); text-decoration: none; transition: color .2s; }
+        /* Top nav bar */
+        .ch-topnav { position: absolute; top: 0; left: 0; right: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 3rem; background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 100%); }
+        .ch-topnav-logo { font-family: 'DM Sans', sans-serif; font-size: 13px; letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.9); text-decoration: none; font-weight: 500; transition: color .2s; }
+        .ch-topnav-logo:hover { color: #fff; }
+        .ch-back { display: flex; align-items: center; gap: 8px; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.45); text-decoration: none; transition: color .2s; }
         .ch-back:hover { color: rgba(255,255,255,.85); }
         .ch-back-arrow { font-size: 14px; }
 
@@ -90,11 +93,14 @@ export default function CityHero({ city }: { city: City }) {
         />
         <div className="ch-overlay" />
 
-        {/* Back */}
-        <Link href="/" className="ch-back">
-          <span className="ch-back-arrow">←</span>
-          All Cities
-        </Link>
+        {/* Top Nav */}
+        <nav className="ch-topnav">
+          <Link href="/" className="ch-back">
+            <span className="ch-back-arrow">←</span>
+            All Cities
+          </Link>
+          <Link href="/" className="ch-topnav-logo">Vibe Syntax</Link>
+        </nav>
 
         {/* Content */}
         <div className="ch-content">

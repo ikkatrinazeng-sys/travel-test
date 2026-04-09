@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Footer from '@/components/layout/Footer'
+import ConditionalFooter from '@/components/layout/ConditionalFooter'
+import ConditionalNavbar from '@/components/layout/ConditionalNavbar'
 
 export const metadata: Metadata = {
   title: 'Wanderlog · 旅行记录',
@@ -14,9 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body className="min-h-screen bg-white">
+      <body className="min-h-screen" style={{ background: '#0e1c10' }}>
+        <ConditionalNavbar />
         {children}
-        <Footer />
+        <ConditionalFooter />
       </body>
     </html>
   )

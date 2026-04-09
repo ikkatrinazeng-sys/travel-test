@@ -1,10 +1,61 @@
+'use client'
+
 import { City } from '@/types'
 import Link from 'next/link'
+import { useRef, useState } from 'react'
+
+// 单个视频卡片：自动检测横/竖屏并调整比例和宽度
+function VideoCard({ video }: { video: { embedUrl: string; title: string } }) {
+  const [isPortrait, setIsPortrait] = useState<boolean | null>(null)
+
+  const isLocal = video.embedUrl.startsWith('/')
+
+  // 竖屏：320px 宽，9:16 比例；横屏：全宽，16:9 比例
+  const cardWidth = isPortrait === true ? '320px' : '100%'
+  const aspectRatio = isPortrait === true ? '9/16' : '16/9'
+
+  return (
+    <div style={{ width: cardWidth, flexShrink: 0 }}>
+      <div style={{
+        width: '100%',
+        aspectRatio,
+        background: '#000',
+        borderRadius: '4px',
+        overflow: 'hidden',
+        position: 'relative',
+      }}>
+        {isLocal ? (
+          <video
+            src={video.embedUrl}
+            controls
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            onLoadedMetadata={(e) => {
+              const v = e.currentTarget
+              setIsPortrait(v.videoHeight > v.videoWidth)
+            }}
+          />
+        ) : (
+          <iframe
+            src={video.embedUrl}
+            title={video.title}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
+            allowFullScreen
+          />
+        )}
+      </div>
+      {video.title && (
+        <p style={{ marginTop: '0.75rem', fontSize: '13px', color: '#666', fontWeight: 300 }}>
+          {video.title}
+        </p>
+      )}
+    </div>
+  )
+}
 
 // Unsplash gallery images per city (3 extra images)
 const GALLERY_PHOTOS: Record<string, string[]> = {
   paris:         ['https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=900&q=80','https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=900&q=80','https://images.unsplash.com/photo-1471623432079-b009d30b6729?w=900&q=80'],
-  beaune:        ['https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=900&q=80','https://images.unsplash.com/photo-1510925758641-869d353cecc7?w=900&q=80','https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=900&q=80'],
+  beaune:        ['https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=900&q=80','https://images.unsplash.com/photo-1510925758641-869d353cecc7?w=900&q=80','/1.jpg'],
   dijon:         ['https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=900&q=80','https://images.unsplash.com/photo-1562516710-96b6e86d13da?w=900&q=80','https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=900&q=80'],
   amsterdam:     ['https://images.unsplash.com/photo-1580086319619-3ed498161c77?w=900&q=80','https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=900&q=80','https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=900&q=80'],
   rome:          ['https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=900&q=80','https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=900&q=80','https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=900&q=80'],
@@ -26,6 +77,16 @@ const GALLERY_PHOTOS: Record<string, string[]> = {
 
 export default function CityDetail({ city }: { city: City }) {
   const photos = GALLERY_PHOTOS[city.slug] ?? []
+  const videoRef = useRef<HTMLDivElement>(null)
+  const photoRef = useRef<HTMLDivElement>(null)
+
+  const scrollToVideos = () => {
+    videoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const scrollToPhotos = () => {
+    photoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
     <>
@@ -117,18 +178,20 @@ export default function CityDetail({ city }: { city: City }) {
             <p className="cd-summary-text">{city.summary}</p>
             <div className="cd-summary-stats">
               <div className="cd-stat">
-                <div className="cd-stat-label">Country</div>
-                <div className="cd-stat-value">{city.country}</div>
-              </div>
-              <div className="cd-stat">
                 <div className="cd-stat-label">Year Visited</div>
                 <div className="cd-stat-value">{city.year}</div>
               </div>
               <div className="cd-stat">
+                <div className="cd-stat-label">Region</div>
+                <div className="cd-stat-value" style={{ fontSize: '16px' }}>
+                  {{ 'europe': 'Europe', 'east-asia': 'East Asia', 'southeast-asia': 'SE Asia' }[city.region] ?? city.region}
+                </div>
+              </div>
+              <div className="cd-stat" style={{ cursor: (photos.length + city.photos.length) > 0 ? 'pointer' : 'default' }} onClick={(photos.length + city.photos.length) > 0 ? scrollToPhotos : undefined}>
                 <div className="cd-stat-label">Photos</div>
                 <div className="cd-stat-value">{(photos.length + city.photos.length).toString().padStart(2, '0')}</div>
               </div>
-              <div className="cd-stat">
+              <div className="cd-stat" style={{ cursor: city.videos.length > 0 ? 'pointer' : 'default' }} onClick={city.videos.length > 0 ? scrollToVideos : undefined}>
                 <div className="cd-stat-label">Videos</div>
                 <div className="cd-stat-value">{String(city.videos.length).padStart(2, '0')}</div>
               </div>
@@ -138,7 +201,7 @@ export default function CityDetail({ city }: { city: City }) {
 
         {/* ── Photo Grid ── */}
         {photos.length >= 3 && (
-          <div className="cd-photos">
+          <div className="cd-photos" ref={photoRef}>
             <div className="cd-section-label">Photography</div>
             <div className="cd-photo-grid">
               <div className="cd-photo-main">
@@ -219,6 +282,19 @@ export default function CityDetail({ city }: { city: City }) {
             </div>
           </div>
         </div>
+
+        {/* ── Videos ── */}
+        {city.videos.length > 0 && (
+          <div ref={videoRef} style={{ maxWidth: '1152px', margin: '0 auto', padding: '5rem 3rem' }}>
+            <div className="cd-section-label">Videos</div>
+            {/* 使用 flex-wrap：竖屏视频宽320px，横屏视频全宽，不强制同行 */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', alignItems: 'flex-start' }}>
+              {city.videos.map((video, i) => (
+                <VideoCard key={i} video={video} />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── Bottom nav ── */}
         <div className="cd-bottom-nav">

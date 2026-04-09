@@ -14,13 +14,21 @@ export default function VideoSection({ videos }: { videos: Video[] }) {
       {videos.map((video, i) => (
         <div key={i} className="group">
           <div className="relative w-full aspect-video rounded-sm overflow-hidden mb-3 bg-neutral-900">
-            <iframe
-              src={video.embedUrl}
-              title={video.title}
-              className="absolute inset-0 w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            {video.embedUrl.startsWith('/') ? (
+              <video
+                src={video.embedUrl}
+                controls
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            ) : (
+              <iframe
+                src={video.embedUrl}
+                title={video.title}
+                className="absolute inset-0 w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
           </div>
           <p className="text-sm font-light text-neutral-700">{video.title}</p>
         </div>

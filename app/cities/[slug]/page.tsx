@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
-import { getCityBySlug, cities } from '@/data/cities'
+import { getCityBySlug, getCities } from '@/lib/actions/city'
+import { dbCityToCity } from '@/lib/cityAdapter'
 import CityHero from '@/components/city/CityHero'
 import CityDetail from '@/components/city/CityDetail'
 
@@ -8,24 +9,29 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  return cities.map((city) => ({ slug: city.slug }))
+  const cities = await getCities()
+  return cities.map((c: { slug: string }) => ({ slug: c.slug }))
 }
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params
-  const city = getCityBySlug(slug)
-  if (!city) return {}
+  const dbCity = await getCityBySlug(slug)
+  if (!dbCity) return {}
   return {
-    title: `${city.name} · Wanderlog`,
-    description: city.summary,
+    title: `${dbCity.name} · Wanderlog`,
+    description: dbCity.summary,
   }
 }
 
+export const revalidate = 3600
+
 export default async function CityPage({ params }: Props) {
   const { slug } = await params
-  const city = getCityBySlug(slug)
+  const dbCity = await getCityBySlug(slug)
 
-  if (!city) notFound()
+  if (!dbCity) notFound()
+
+  const city = dbCityToCity(dbCity)
 
   return (
     <main>

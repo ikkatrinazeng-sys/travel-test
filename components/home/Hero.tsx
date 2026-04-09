@@ -2,19 +2,23 @@
 
 import { useEffect, useRef } from 'react'
 
-const CITIES = [
-  { name: 'Rome',      date: '2024.04', color: '#221a18', tag: 'Italy',    img: '/rome.jpg',      x: 5,  y: 48, rot: 8,   spd: 0.022, float: 'B', delay: 0.6 },
-  { name: 'Amsterdam', date: '2024.05', color: '#181e24', tag: 'Holland',  img: '/amsterdam.jpg', x: 82, y: 60, rot: -8,  spd: 0.017, float: 'B', delay: 0.9 },
-  { name: 'Penang',    date: '2024.02', color: '#1a2018', tag: 'Malaysia', img: '/penang.jpg',    x: 30, y: 38, rot: -5,  spd: 0.013, float: 'C', delay: 0.8 },
-  { name: 'Busan',     date: '2023.11', color: '#1e2030', tag: 'Korea',    img: '/busan.jpg',     x: 14, y: 28, rot: -11, spd: 0.025, float: 'C', delay: 0.4 },
-  { name: 'Capri',     date: '2023.08', color: '#162428', tag: 'Italy',    img: '/capri.jpg',     x: 44, y: 22, rot: 4,   spd: 0.018, float: 'A', delay: 0.7 },
-  { name: 'Beaune',    date: '2024.03', color: '#1e1a2e', tag: 'France',   img: '/beaune.jpg',    x: 62, y: 32, rot: -7,  spd: 0.020, float: 'A', delay: 0.3 },
-  { name: 'Paris',     date: '2024.06', color: '#1e1a2e', tag: 'France',   img: '/paris.jpg',     x: 78, y: 45, rot: 6,   spd: 0.015, float: 'B', delay: 0.5 },
-  { name: 'Phuket',    date: '2023.08', color: '#1e2618', tag: 'Thailand', img: '/phuket.jpg',    x: 58, y: 55, rot: 10,  spd: 0.028, float: 'A', delay: 0.5 },
-  { name: 'Kyoto',     date: '2024.02', color: '#1c2a1e', tag: 'Japan',    img: '/kyoto.jpg',     x: 24, y: 62, rot: 3,   spd: 0.021, float: 'C', delay: 1.0 },
-]
+interface Polaroid {
+  id: number
+  name: string
+  date: string
+  tag: string
+  img: string
+  color: string
+  x: number
+  y: number
+  rot: number
+  spd: number
+  float: string
+  delay: number
+  order: number
+}
 
-export default function Hero() {
+export default function Hero({ polaroids }: { polaroids: Polaroid[] }) {
   const sceneRef = useRef<HTMLDivElement>(null)
   const glowRef = useRef<HTMLDivElement>(null)
   const glow2Ref = useRef<HTMLDivElement>(null)
@@ -28,20 +32,20 @@ export default function Hero() {
 
   useEffect(() => {
     const scene = sceneRef.current
-    const polaroids = polaroidsRef.current
-    if (!scene || !polaroids) return
+    const polaroidsEl = polaroidsRef.current
+    if (!scene || !polaroidsEl) return
 
-    const cardEls: { el: HTMLDivElement; c: typeof CITIES[0] }[] = []
+    const cardEls: { el: HTMLDivElement; c: Polaroid }[] = []
 
     // Build polaroid cards
-    CITIES.forEach((c) => {
+    polaroids.forEach((c) => {
       const card = document.createElement('div')
       card.className = 'hero-card'
       card.style.cssText = `
         left:${c.x}%; top:${c.y}%;
         --r:${c.rot}deg;
         z-index:${Math.floor(c.spd * 1000)};
-        animation: cardIn 0.7s ${c.delay}s both cubic-bezier(.22,.68,0,1.2), float${c.float} ${3.5 + CITIES.indexOf(c) * 0.4}s ${c.delay + 0.7}s ease-in-out infinite;
+        animation: cardIn 0.7s ${c.delay}s both cubic-bezier(.22,.68,0,1.2), float${c.float} ${3.5 + polaroids.indexOf(c) * 0.4}s ${c.delay + 0.7}s ease-in-out infinite;
       `
       card.innerHTML = `
         <div class="hero-card-img">
@@ -56,7 +60,7 @@ export default function Hero() {
           <span class="hero-card-date">${c.date}</span>
         </div>
       `
-      polaroids.appendChild(card)
+      polaroidsEl.appendChild(card)
       cardEls.push({ el: card as HTMLDivElement, c })
 
       card.addEventListener('mouseenter', () => cringRef.current?.classList.add('hover'))
@@ -154,9 +158,9 @@ export default function Hero() {
       scene.removeEventListener('mousemove', onMove)
       scene.removeEventListener('mouseleave', onLeave)
       scene.removeEventListener('mouseenter', onEnter)
-      polaroids.innerHTML = ''
+      polaroidsEl.innerHTML = ''
     }
-  }, [])
+  }, [polaroids])
 
   return (
     <>
@@ -176,14 +180,6 @@ export default function Hero() {
         .hero-glow{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(80,160,90,0.18) 0%,transparent 70%);pointer-events:none;z-index:2;transform:translate(-50%,-50%);transition:left 0.8s cubic-bezier(.25,.46,.45,.94),top 0.8s cubic-bezier(.25,.46,.45,.94);animation:glowPulse 4s ease-in-out infinite;}
         .hero-glow2{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(200,169,110,0.1) 0%,transparent 70%);pointer-events:none;z-index:2;transform:translate(-50%,-50%);transition:left 0.4s ease-out,top 0.4s ease-out;}
 
-        .hero-nav{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:22px 28px;z-index:20;}
-        .hero-nav-logo{font-size:12px;font-weight:500;color:rgba(255,255,255,0.9);letter-spacing:0.12em;text-transform:uppercase;animation:titleIn 0.8s 0.2s both ease-out;}
-        .hero-nav-right{display:flex;align-items:center;gap:28px;animation:titleIn 0.8s 0.4s both ease-out;}
-        .hero-nav-links{display:flex;gap:24px;}
-        .hero-nav-links span{font-size:11px;color:rgba(255,255,255,0.4);cursor:pointer;letter-spacing:0.06em;transition:color 0.2s;}
-        .hero-nav-links span:hover{color:rgba(255,255,255,0.85);}
-        .hero-nav-dot{width:6px;height:6px;border-radius:50%;background:#c8a96e;animation:dotBlink 2s ease-in-out infinite;}
-
         .hero-polaroids{position:absolute;inset:0;z-index:5;}
 
         .hero-card{position:absolute;width:140px;background:#ede9e0;padding:7px 7px 26px;border-radius:1px;cursor:pointer;will-change:transform;transition:box-shadow 0.3s;}
@@ -197,12 +193,13 @@ export default function Hero() {
         .hero-card-city{font-size:10px;font-family:Georgia,serif;font-style:italic;color:#3a3530;}
         .hero-card-date{font-size:8px;color:#9a9088;}
 
-        .hero-text{position:absolute;top:72px;left:28px;z-index:10;}
+        .hero-text{position:absolute;top:88px;left:28px;z-index:10;}
         .hero-eyebrow{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:10px;animation:titleIn 1s 1.2s both ease-out;}
         .hero-title{font-size:34px;font-family:Georgia,serif;font-style:italic;font-weight:400;color:rgba(255,255,255,0.92);line-height:1.25;animation:titleIn 1s 1.4s both ease-out;}
         .hero-title em{font-style:normal;color:#c8a96e;}
         .hero-line{height:0.5px;background:rgba(200,169,110,0.5);margin:14px 0;animation:lineGrow 1s 1.8s both ease-out;}
-        .hero-sub{font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.04em;animation:titleIn 1s 2s both ease-out;}
+        .hero-desc{font-size:13px;line-height:1.8;color:rgba(255,255,255,0.45);font-weight:300;margin:8px 0 0;letter-spacing:0.02em;animation:titleIn 1s 1.9s both ease-out;}
+        .hero-sub{font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.04em;margin-top:16px;animation:titleIn 1s 2.1s both ease-out;}
 
         .hero-marquee-wrap{position:absolute;bottom:0;left:0;right:0;z-index:3;overflow:hidden;pointer-events:none;padding-bottom:4px;}
         .hero-marquee-inner{display:flex;white-space:nowrap;animation:marqueeScroll 22s linear infinite;will-change:transform;}
@@ -230,21 +227,7 @@ export default function Hero() {
         <div className="hero-cursor-ring" ref={cringRef} />
         <div className="hero-cursor-dot" ref={cdotRef} />
 
-        {/* 导航 */}
-        <nav className="hero-nav">
-          <span className="hero-nav-logo">Wandering Lens</span>
-          <div className="hero-nav-right">
-            <div className="hero-nav-links">
-              {['城市', '摄影', '文章', '关于'].map((item) => (
-                <span key={item}>{item}</span>
-              ))}
-            </div>
-            <div className="hero-nav-dot" />
-          </div>
-        </nav>
-
         {/* 角落标签 */}
-        <div className="hero-corner hero-corner-tl">© 2024</div>
         <div className="hero-corner hero-corner-tr">vol. I</div>
 
         {/* 极坐标卡片容器 */}
@@ -258,9 +241,10 @@ export default function Hero() {
 
         {/* 主文案 */}
         <div className="hero-text">
-          <p className="hero-eyebrow">19 cities · 6 countries · since 2023</p>
-          <h1 className="hero-title">用镜头展示<em>每一段旅途</em></h1>
+          <h1 className="hero-title">正在用旅行的经历编写<em>一种全新的生活语言</em></h1>
           <div className="hero-line" />
+          <p className="hero-desc">一场视觉与经验的交互实验。剥离传统叙事，留存高浓度的情绪节点与空间切片</p>
+          <p className="hero-desc">足迹即语言，旅行即编译，剥开冗余的坐标，重构那组共鸣生命的色彩权重</p>
           <p className="hero-sub">Seoul · Paris · Osaka · Bangkok · Rome</p>
         </div>
 
