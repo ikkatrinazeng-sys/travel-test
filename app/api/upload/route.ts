@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
+import { put } from '@vercel/blob'
 import { auth } from '@/auth'
 
 export async function POST(req: NextRequest) {
@@ -28,28 +27,25 @@ export async function POST(req: NextRequest) {
     // 图片上限 10MB，视频上限 500MB
     const maxSize = isVideo ? 500 * 1024 * 1024 : 10 * 1024 * 1024
     if (file.size > maxSize) {
-      return NextResponse.json({ error: isVideo ? '视频大小不能超过 500MB' : '图片大小不能超过 10MB' }, { status: 400 })
+      return NextResponse.json(
+        { error: isVideo ? '视频大小不能超过 500MB' : '图片大小不能超过 10MB' },
+        { status: 400 }
+      )
     }
-
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
 
     // 生成唯一文件名：时间戳 + 原始文件名
     const timestamp = Date.now()
     const originalName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-    const filename = `${timestamp}_${originalName}`
+    const filename = `uploads/${timestamp}_${originalName}`
 
-    // 确保 public/uploads 目录存在
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-    await mkdir(uploadDir, { recursive: true })
+    // 上传到 Vercel Blob
+    const blob = await put(filename, file, {
+      access: 'public',
+      contentType: file.type,
+    })
 
-    // 写入文件
-    const filePath = path.join(uploadDir, filename)
-    await writeFile(filePath, buffer)
-
-    // 返回公开访问路径
-    const publicPath = `/uploads/${filename}`
-    return NextResponse.json({ path: publicPath })
+    // 返回 Blob 公开访问 URL
+    return NextResponse.json({ path: blob.url })
   } catch (err) {
     console.error('Upload error:', err)
     return NextResponse.json({ error: '上传失败' }, { status: 500 })
