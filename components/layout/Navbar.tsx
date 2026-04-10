@@ -31,7 +31,7 @@ export default function Navbar() {
     <nav
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5 transition-all duration-300"
       style={{
-        background: scrolled ? 'rgba(10, 16, 10, 0.85)' : 'transparent',
+        background: scrolled ? 'rgba(11, 23, 16, 0.92)' : 'transparent',
         backdropFilter: scrolled ? 'blur(12px)' : 'none',
         WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
         borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : '1px solid transparent',

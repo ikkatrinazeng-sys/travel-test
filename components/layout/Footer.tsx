@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer style={{ background: 'rgb(10, 28, 16)', borderTop: '0.5px solid rgba(255,255,255,0.07)', padding: '3rem 2rem 2rem' }}>
+    <footer style={{ background: 'rgba(11, 23, 16, 0.92)', borderTop: '0.5px solid rgba(255,255,255,0.07)', padding: '3rem 2rem 2rem' }}>
       <style>{`
         .footer-link { font-family: system-ui, sans-serif; font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.2s; }
         .footer-link:hover { color: rgba(255,255,255,0.9); }
