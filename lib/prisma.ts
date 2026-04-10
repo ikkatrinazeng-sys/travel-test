@@ -3,7 +3,10 @@ import { PrismaLibSql } from '@prisma/adapter-libsql'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createPrismaClient(): PrismaClient {
-  const adapter = new PrismaLibSql({ url: 'file:./prisma/dev.db' })
+  const url = process.env.DATABASE_URL!
+  const authToken = process.env.DATABASE_AUTH_TOKEN
+
+  const adapter = new PrismaLibSql({ url, authToken })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new PrismaClient({ adapter } as any)
 }

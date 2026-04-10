@@ -3,7 +3,9 @@ import { defineConfig } from 'prisma/config'
 
 export default defineConfig({
   schema: path.join('prisma', 'schema.prisma'),
-  datasource: {
-    url: 'file:./prisma/dev.db',
-  },
+  // datasource.url is only needed for Prisma CLI migrate commands
+  // Runtime connection is handled via lib/prisma.ts using env vars
+  ...(process.env.DATABASE_URL
+    ? { datasource: { url: process.env.DATABASE_URL } }
+    : {}),
 })

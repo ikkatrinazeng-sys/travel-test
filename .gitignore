@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+DATABASE_URL="libsql://travel-ikkatrinazeng-sys.aws-ap-northeast-1.turso.io"
+DATABASE_AUTH_TOKEN="eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJleHAiOjE4MDczMjgyMzMsImlhdCI6MTc3NTc5MjIzMywiaWQiOiIwMTlkNzU2MS04ZDAxLTc0MGQtYjdiNy0yN2IwYTBhZTFiMDUiLCJyaWQiOiJkNDI5MDRmYy1lZmFjLTQ5NWQtODFlYi0yNDc1YmMxM2I4ZWUifQ.f_O7DogMxGUmKYTlGdAXQftnezcJwgEfVtlgK5NkM_-zQtBLB74Tk7JuD5dNRZEwF2CF6lRD0SLG14VDY1ucBg"
 
 # vercel
 .vercel
