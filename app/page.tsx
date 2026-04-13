@@ -4,7 +4,7 @@ import AllCities from '@/components/home/AllCities'
 import { getHeroPolaroids, getRecentUpdates } from '@/lib/actions/homepage'
 import { getCitiesForHome } from '@/lib/actions/city'
 
-export const revalidate = 3600
+export const revalidate = 60
 
 // 带超时的 Promise 包装，避免数据库慢查询阻塞 SSR
 function withTimeout<T>(promise: Promise<T>, ms = 5000, fallback: T): Promise<T> {
@@ -16,9 +16,9 @@ function withTimeout<T>(promise: Promise<T>, ms = 5000, fallback: T): Promise<T>
 
 export default async function HomePage() {
   const [polaroids, recentItems, cities] = await Promise.all([
-    withTimeout(getHeroPolaroids(), 5000, []),
-    withTimeout(getRecentUpdates(), 5000, []),
-    withTimeout(getCitiesForHome(), 5000, []),
+    withTimeout(getHeroPolaroids(), 20000, []),
+    withTimeout(getRecentUpdates(), 20000, []),
+    withTimeout(getCitiesForHome(), 20000, []),
   ])
 
   return (
