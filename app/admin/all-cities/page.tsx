@@ -3,7 +3,8 @@ import AllCitiesAdminClient from './client'
 
 export default async function AllCitiesAdminPage() {
   const cities = await getCities()
-  const cityItems = cities.map(c => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cityItems = cities.map((c: any) => ({
     id: c.id,
     slug: c.slug,
     name: c.name,
