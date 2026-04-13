@@ -29,25 +29,47 @@ export default function Hero({ polaroids }: { polaroids: Polaroid[] }) {
   const s1Ref = useRef<HTMLSpanElement>(null)
   const s2Ref = useRef<HTMLSpanElement>(null)
   const s3Ref = useRef<HTMLSpanElement>(null)
-
   useEffect(() => {
     const scene = sceneRef.current
     const polaroidsEl = polaroidsRef.current
     if (!scene || !polaroidsEl) return
 
-    const cardEls: { el: HTMLDivElement; c: Polaroid }[] = []
+    const cardEls: { el: HTMLDivElement; c: Polaroid; ox: number; oy: number }[] = []
 
-    // Build polaroid cards
-    polaroids.forEach((c) => {
+    // 入场动画变体：每张卡片从不同方向进入
+    const inDirs = [
+      `translateX(-120px) rotate(-12deg) scale(0.7)`,
+      `translateX(120px) rotate(12deg) scale(0.7)`,
+      `translateY(-100px) rotate(-8deg) scale(0.75)`,
+      `translateY(100px) rotate(8deg) scale(0.75)`,
+      `translate(-80px,-80px) rotate(-15deg) scale(0.7)`,
+      `translate(80px,-80px) rotate(15deg) scale(0.7)`,
+      `translate(-80px,80px) rotate(10deg) scale(0.7)`,
+      `translate(80px,80px) rotate(-10deg) scale(0.7)`,
+      `translateX(-150px) scale(0.65)`,
+      `translateX(150px) scale(0.65)`,
+    ]
+
+    polaroids.forEach((c, idx) => {
       const card = document.createElement('div')
       card.className = 'hero-card'
+      const fromStyle = inDirs[idx % inDirs.length]
+
+      // 安全坐标：防止负值或极端值导致卡片飞出屏幕外
+      // x 保证卡片（148px宽）不超出右侧：clamp 在 2%~85%；y clamp 在 5%~78%
+      const safeX = Math.max(2, Math.min(Number(c.x) || 50, 85))
+      const safeY = Math.max(5, Math.min(Number(c.y) || 50, 78))
+
       card.style.cssText = `
-        left:${c.x}%; top:${c.y}%;
+        left:${safeX}%; top:${safeY}%;
+        transform:${fromStyle} rotate(${c.rot}deg);
         --r:${c.rot}deg;
-        z-index:${Math.floor(c.spd * 1000)};
-        animation: cardIn 0.7s ${c.delay}s both cubic-bezier(.22,.68,0,1.2), float${c.float} ${3.5 + polaroids.indexOf(c) * 0.4}s ${c.delay + 0.7}s ease-in-out infinite;
+        z-index:${Math.floor((c.spd || 0.02) * 1000)};
+        opacity:0;
+        transition: none;
       `
       card.innerHTML = `
+        <div class="hero-card-pin"></div>
         <div class="hero-card-img">
           ${c.img
             ? `<img src="${c.img}" class="hero-card-photo" alt="${c.name}" />`
@@ -59,15 +81,32 @@ export default function Hero({ polaroids }: { polaroids: Polaroid[] }) {
           <span class="hero-card-city">${c.name}</span>
           <span class="hero-card-date">${c.date}</span>
         </div>
+        <div class="hero-card-shine"></div>
       `
       polaroidsEl.appendChild(card)
-      cardEls.push({ el: card as HTMLDivElement, c })
+      cardEls.push({ el: card as HTMLDivElement, c, ox: 0, oy: 0 })
+
+      // 入场延迟（每张递增，避免叠加 c.delay 导致重复延迟）
+      const entryDelay = idx * 0.12
+      setTimeout(() => {
+        card.style.transition = `opacity 0.6s cubic-bezier(.22,.68,0,1.2) ${entryDelay}s, transform 0.8s cubic-bezier(.22,.68,0,1.25) ${entryDelay}s`
+        card.style.opacity = '1'
+        card.style.transform = `rotate(${c.rot}deg)`
+        // 入场完成后启动浮动（不再叠加 c.delay）
+        setTimeout(() => {
+          const floatNames = ['floatLis', 'floatFig', 'floatOval', 'floatWave', 'floatDrift', 'floatOrbit']
+          const fi = idx % floatNames.length
+          const dur = 4 + idx * 0.38
+          card.style.transition = 'none'
+          card.style.animation = `${floatNames[fi]} ${dur}s ease-in-out infinite`
+        }, (entryDelay + 0.9) * 1000)
+      }, 50)
 
       card.addEventListener('mouseenter', () => cringRef.current?.classList.add('hover'))
       card.addEventListener('mouseleave', () => cringRef.current?.classList.remove('hover'))
     })
 
-    // Draw threads
+    // 连线
     function drawThreads() {
       const threadsEl = threadsRef.current
       if (!threadsEl) return
@@ -76,16 +115,24 @@ export default function Hero({ polaroids }: { polaroids: Polaroid[] }) {
         const r = el.getBoundingClientRect()
         return { x: r.left - sr.left + r.width / 2, y: r.top - sr.top + r.height / 2 }
       })
-      let d = ''
+      let paths = ''
       for (let i = 0; i < pts.length - 1; i += 2) {
-        if (pts[i + 1])
-          d += `M${pts[i].x},${pts[i].y} Q${(pts[i].x + pts[i + 1].x) / 2 + 20},${(pts[i].y + pts[i + 1].y) / 2 - 30} ${pts[i + 1].x},${pts[i + 1].y} `
+        if (pts[i + 1]) {
+          const mx = (pts[i].x + pts[i + 1].x) / 2 + 30
+          const my = (pts[i].y + pts[i + 1].y) / 2 - 25
+          paths += `<path d="M${pts[i].x},${pts[i].y} Q${mx},${my} ${pts[i + 1].x},${pts[i + 1].y}" stroke="rgba(200,169,110,0.18)" stroke-width="0.7" stroke-dasharray="5 5" fill="none" style="stroke-dashoffset:0;animation:dashFlow 3s linear infinite"/>`
+        }
       }
-      threadsEl.innerHTML = `<path d="${d}" stroke="rgba(200,169,110,0.2)" stroke-width="0.5" stroke-dasharray="4 4" fill="none"/>`
+      if (pts.length > 4) {
+        const mx2 = (pts[1].x + pts[4].x) / 2
+        const my2 = (pts[1].y + pts[4].y) / 2 - 50
+        paths += `<path d="M${pts[1].x},${pts[1].y} Q${mx2},${my2} ${pts[4].x},${pts[4].y}" stroke="rgba(200,169,110,0.08)" stroke-width="0.5" stroke-dasharray="3 9" fill="none" style="animation:dashFlow 6s linear infinite reverse"/>`
+      }
+      threadsEl.innerHTML = paths
     }
-    const threadTimer = setTimeout(drawThreads, 1200)
+    const threadTimer = setTimeout(drawThreads, 1400)
 
-    // Counter animation
+    // 计数器
     const targets = [19, 6, 1200]
     const counterEls = [s1Ref.current, s2Ref.current, s3Ref.current]
     const durations = [1200, 800, 1600]
@@ -105,7 +152,7 @@ export default function Hero({ polaroids }: { polaroids: Polaroid[] }) {
       timers.push(t)
     })
 
-    // Mouse tracking
+    // 鼠标磁吸 + 视差
     let mx = scene.offsetWidth / 2
     let my = scene.offsetHeight / 2
     let ringX = mx, ringY = my
@@ -122,10 +169,21 @@ export default function Hero({ polaroids }: { polaroids: Polaroid[] }) {
       const ndx = mx / r.width - 0.5
       const ndy = my / r.height - 0.5
       cardEls.forEach(({ el, c }) => {
-        const ox = ndx * c.spd * r.width * 2.2
-        const oy = ndy * c.spd * r.height * 2.2
-        el.style.marginLeft = ox + 'px'
-        el.style.marginTop = oy + 'px'
+        const cr = el.getBoundingClientRect()
+        const cardCx = cr.left - r.left + cr.width / 2
+        const cardCy = cr.top - r.top + cr.height / 2
+        const dx = mx - cardCx
+        const dy = my - cardCy
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        // 视差位移
+        const px = ndx * c.spd * r.width * 3
+        const py = ndy * c.spd * r.height * 3
+        // 磁吸：150px 内卡片被轻微吸引
+        const magnet = dist < 150 ? (1 - dist / 150) * 14 : 0
+        const mx2 = px + (dist < 150 ? dx / dist * magnet : 0)
+        const my2 = py + (dist < 150 ? dy / dist * magnet : 0)
+        el.style.marginLeft = mx2 + 'px'
+        el.style.marginTop = my2 + 'px'
       })
     }
 
@@ -144,8 +202,8 @@ export default function Hero({ polaroids }: { polaroids: Polaroid[] }) {
     scene.addEventListener('mouseenter', onEnter)
 
     function animateRing() {
-      ringX += (mx - ringX) * 0.1
-      ringY += (my - ringY) * 0.1
+      ringX += (mx - ringX) * 0.08
+      ringY += (my - ringY) * 0.08
       if (cringRef.current) { cringRef.current.style.left = ringX + 'px'; cringRef.current.style.top = ringY + 'px' }
       rafId = requestAnimationFrame(animateRing)
     }
@@ -163,83 +221,18 @@ export default function Hero({ polaroids }: { polaroids: Polaroid[] }) {
   }, [polaroids])
 
   return (
-    <>
-      <style>{`
-        @keyframes floatA{0%,100%{transform:translateY(0px) rotate(var(--r))}50%{transform:translateY(-10px) rotate(var(--r))}}
-        @keyframes floatB{0%,100%{transform:translateY(0px) rotate(var(--r))}50%{transform:translateY(8px) rotate(var(--r))}}
-        @keyframes floatC{0%,100%{transform:translateY(0px) rotate(var(--r))}50%{transform:translateY(-6px) rotate(var(--r))}}
-        @keyframes cardIn{from{opacity:0;transform:translateY(40px) rotate(var(--r)) scale(0.88)}to{opacity:1;transform:translateY(0) rotate(var(--r)) scale(1)}}
-        @keyframes titleIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes lineGrow{from{width:0}to{width:100%}}
-        @keyframes marqueeScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-        @keyframes glowPulse{0%,100%{opacity:0.18}50%{opacity:0.32}}
-        @keyframes dotBlink{0%,100%{opacity:1}50%{opacity:0.3}}
-
-        .hero-scene{width:100%;height:100vh;background:#0b1510;position:relative;overflow:hidden;cursor:none;user-select:none;}
-
-        .hero-glow{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(80,160,90,0.18) 0%,transparent 70%);pointer-events:none;z-index:2;transform:translate(-50%,-50%);transition:left 0.8s cubic-bezier(.25,.46,.45,.94),top 0.8s cubic-bezier(.25,.46,.45,.94);animation:glowPulse 4s ease-in-out infinite;}
-        .hero-glow2{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(200,169,110,0.1) 0%,transparent 70%);pointer-events:none;z-index:2;transform:translate(-50%,-50%);transition:left 0.4s ease-out,top 0.4s ease-out;}
-
-        .hero-polaroids{position:absolute;inset:0;z-index:5;}
-
-        .hero-card{position:absolute;width:140px;background:#ede9e0;padding:7px 7px 26px;border-radius:1px;cursor:pointer;will-change:transform;transition:box-shadow 0.3s;}
-        .hero-card-img{width:100%;aspect-ratio:1/1;overflow:hidden;position:relative;}
-        .hero-card-color{width:100%;height:100%;transition:transform 0.5s ease;}
-        .hero-card:hover .hero-card-color{transform:scale(1.06);}
-        .hero-card-photo{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s ease;}
-        .hero-card:hover .hero-card-photo{transform:scale(1.06);}
-        .hero-card-tag{position:absolute;top:6px;left:6px;font-size:8px;letter-spacing:0.08em;text-transform:uppercase;background:rgba(255,255,255,0.85);color:#2a2520;padding:2px 6px;border-radius:20px;}
-        .hero-card-bottom{padding-top:5px;display:flex;justify-content:space-between;align-items:flex-end;}
-        .hero-card-city{font-size:10px;font-family:Georgia,serif;font-style:italic;color:#3a3530;}
-        .hero-card-date{font-size:8px;color:#9a9088;}
-
-        .hero-text{position:absolute;top:88px;left:28px;z-index:10;}
-        .hero-eyebrow{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:10px;animation:titleIn 1s 1.2s both ease-out;}
-        .hero-title{font-size:34px;font-family:Georgia,serif;font-style:italic;font-weight:400;color:rgba(255,255,255,0.92);line-height:1.25;animation:titleIn 1s 1.4s both ease-out;}
-        .hero-title em{font-style:normal;color:#c8a96e;}
-        .hero-line{height:0.5px;background:rgba(200,169,110,0.5);margin:14px 0;animation:lineGrow 1s 1.8s both ease-out;}
-        .hero-desc{font-size:13px;line-height:1.8;color:rgba(255,255,255,0.45);font-weight:300;margin:8px 0 0;letter-spacing:0.02em;animation:titleIn 1s 1.9s both ease-out;}
-        .hero-sub{font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.04em;margin-top:16px;animation:titleIn 1s 2.1s both ease-out;}
-
-        .hero-marquee-wrap{position:absolute;bottom:0;left:0;right:0;z-index:3;overflow:hidden;pointer-events:none;padding-bottom:4px;}
-        .hero-marquee-inner{display:flex;white-space:nowrap;animation:marqueeScroll 22s linear infinite;will-change:transform;}
-        .hero-marquee-text{font-size:62px;font-family:Georgia,serif;font-style:italic;font-weight:400;color:rgba(255,255,255,0.055);letter-spacing:-0.01em;padding-right:60px;flex-shrink:0;}
-
-        .hero-scroll-hint{position:absolute;bottom:52px;right:28px;z-index:10;display:flex;align-items:center;gap:10px;animation:titleIn 1s 2.2s both ease-out;}
-        .hero-scroll-hint span{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.25);}
-        .hero-arr-line{width:0.5px;height:20px;background:linear-gradient(to bottom,transparent,rgba(200,169,110,0.5));animation:lineGrow 1s 2.4s both ease-out;}
-
-        .hero-corner{position:absolute;z-index:10;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);}
-        .hero-corner-tl{top:62px;left:28px;animation:titleIn 1s 1s both ease-out;}
-        .hero-corner-tr{top:62px;right:28px;text-align:right;animation:titleIn 1s 1.1s both ease-out;}
-
-        .hero-cursor-dot{position:absolute;width:5px;height:5px;background:#c8a96e;border-radius:50%;pointer-events:none;z-index:100;transform:translate(-50%,-50%);transition:opacity 0.2s;opacity:0;}
-        .hero-cursor-ring{position:absolute;width:36px;height:36px;border:0.5px solid rgba(200,169,110,0.45);border-radius:50%;pointer-events:none;z-index:99;transform:translate(-50%,-50%);transition:left 0.12s ease-out,top 0.12s ease-out,width 0.2s,height 0.2s,opacity 0.2s;opacity:0;}
-        .hero-cursor-ring.hover{width:52px;height:52px;border-color:rgba(200,169,110,0.7);}
-      `}</style>
-
-      <section className="hero-scene" ref={sceneRef}>
-        {/* 光晕 */}
+    <section className="hero-scene" ref={sceneRef}>
         <div className="hero-glow" ref={glowRef} />
         <div className="hero-glow2" ref={glow2Ref} />
-
-        {/* 自定义光标 */}
         <div className="hero-cursor-ring" ref={cringRef} />
         <div className="hero-cursor-dot" ref={cdotRef} />
-
-        {/* 角落标签 */}
         <div className="hero-corner hero-corner-tr">vol. I</div>
-
-        {/* 极坐标卡片容器 */}
         <div className="hero-polaroids" ref={polaroidsRef} />
-
-        {/* 连线 SVG */}
         <svg
           ref={threadsRef}
+          className="hero-threads"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 4, pointerEvents: 'none', overflow: 'visible' }}
         />
-
-        {/* 主文案 */}
         <div className="hero-text">
           <h1 className="hero-title">正在用旅行的经历编写<em>一种全新的生活语言</em></h1>
           <div className="hero-line" />
@@ -247,21 +240,16 @@ export default function Hero({ polaroids }: { polaroids: Polaroid[] }) {
           <p className="hero-desc">足迹即语言，旅行即编译，剥开冗余的坐标，重构那组共鸣生命的色彩权重</p>
           <p className="hero-sub">Seoul · Paris · Osaka · Bangkok · Rome</p>
         </div>
-
-        {/* 跑马灯 */}
         <div className="hero-marquee-wrap">
           <div className="hero-marquee-inner">
             <div className="hero-marquee-text">Paris · Osaka · Seoul · Phuket · Rome · Kyoto · Bangkok · Amsterdam · Chiang Mai · Naples · Busan · Penang · Kobe · Dijon &nbsp;</div>
             <div className="hero-marquee-text">Paris · Osaka · Seoul · Phuket · Rome · Kyoto · Bangkok · Amsterdam · Chiang Mai · Naples · Busan · Penang · Kobe · Dijon &nbsp;</div>
           </div>
         </div>
-
-        {/* 滚动提示 */}
         <div className="hero-scroll-hint">
           <span>Scroll</span>
           <div className="hero-arr-line" />
-        </div>
-      </section>
-    </>
+      </div>
+    </section>
   )
 }

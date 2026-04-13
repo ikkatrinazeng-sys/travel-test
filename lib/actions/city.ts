@@ -115,12 +115,17 @@ export async function deleteCity(id: number) {
 
 // ─── 新增城市 ────────────────────────────────────────────
 export async function createCity(formData: FormData) {
-  const slug = (formData.get('slug') as string).trim()
   const name = (formData.get('name') as string).trim()
+  // 自动根据城市名生成 slug（拼音/英文转小写连字符格式，去除特殊字符）
+  const slug = name
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^\w\u4e00-\u9fff-]/g, '')
+    .replace(/^-+|-+$/g, '') || `city-${Date.now()}`
   const country = (formData.get('country') as string).trim()
   const region = (formData.get('region') as string).trim()
   const year = Number(formData.get('year'))
-  const coverColor = (formData.get('coverColor') as string).trim()
+  const coverColor = (formData.get('coverColor') as string | null)?.trim() || '#7c6f8e'
   const summary = (formData.get('summary') as string).trim()
   const heroQuote = (formData.get('heroQuote') as string | null)?.trim() || null
 

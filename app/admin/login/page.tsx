@@ -95,6 +95,23 @@ function LoginForm() {
         boxShadow: '0 40px 80px rgba(0,0,0,0.6)',
         backdropFilter: 'blur(28px)',
       }}>
+        {/* 关闭按钮 */}
+        <button
+          onClick={() => router.push('/')}
+          style={{
+            position: 'absolute', top: 14, right: 16,
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'rgba(255,255,255,0.3)', fontSize: 18, lineHeight: 1,
+            padding: '2px 6px', borderRadius: 6,
+            transition: 'color 0.2s',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
+          aria-label="关闭"
+        >
+          ✕
+        </button>
+
         {/* 顶部金色光边 */}
         <div style={{
           position: 'absolute', top: 0, left: '12%', right: '12%', height: 1,

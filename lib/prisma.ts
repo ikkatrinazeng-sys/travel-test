@@ -1,11 +1,11 @@
 import { PrismaClient } from '@prisma/client'
 import { PrismaLibSql } from '@prisma/adapter-libsql'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createPrismaClient(): PrismaClient {
-  const url = process.env.DATABASE_URL!
+  const url = process.env.DATABASE_URL ?? 'file:./prisma/dev.db'
   const authToken = process.env.DATABASE_AUTH_TOKEN
 
+  // LibSQL adapter 同时支持本地 file: 路径和远程 libsql:// URL
   const adapter = new PrismaLibSql({ url, authToken })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new PrismaClient({ adapter } as any)

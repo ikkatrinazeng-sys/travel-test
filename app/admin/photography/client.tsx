@@ -3,6 +3,7 @@
 import { useState, useTransition, useRef } from 'react'
 import { savePhotographyCity, deletePhotographyCity } from '@/lib/actions/homepage'
 import DeleteBtn from '@/components/admin/DeleteBtn'
+import ConfirmDialog from '@/components/admin/ConfirmDialog'
 
 interface Photo { id?: number; src: string; caption: string; order: number }
 interface City { id?: number; city: string; country: string; slug: string; order: number; photos: Photo[] }
@@ -120,9 +121,15 @@ function CityEditor({ city, onSaved, onDeleted }: {
     })
   }
 
+  const [confirmOpen, setConfirmOpen] = useState(false)
+
   const handleDelete = () => {
     if (!data.id) { onDeleted(); return }
-    if (!confirm(`确定删除「${data.city}」摄影组？`)) return
+    setConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    setConfirmOpen(false)
     startTransition(async () => {
       await deletePhotographyCity(data.id!)
       onDeleted()
@@ -202,6 +209,16 @@ function CityEditor({ city, onSaved, onDeleted }: {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        message={`确定删除「${data.city}」摄影组？`}
+        confirmText="删除"
+        cancelText="取消"
+        danger={true}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   )
 }

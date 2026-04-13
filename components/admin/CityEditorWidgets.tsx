@@ -3,6 +3,7 @@
 import { useState, useTransition, useRef } from 'react'
 import { updatePhotos, updateVideos, deleteCity } from '@/lib/actions/city'
 import DeleteBtn from '@/components/admin/DeleteBtn'
+import ConfirmDialog from '@/components/admin/ConfirmDialog'
 
 interface Photo { id?: number; src: string; caption: string; order: number }
 interface Video { id?: number; title: string; embedUrl: string; thumbnail: string; order: number }
@@ -161,18 +162,20 @@ export function PhotosEditor({ cityId, slug, initialPhotos }: { cityId: number; 
   }
 
   return (
-    <div>
-      <div className="grid grid-cols-3 gap-4 mb-4">
-        {photos.map((p, i) => (
-          <PhotoCard
-            key={i}
-            photo={p}
-            onSrcChange={src => update(i, 'src', src)}
-            onCaptionChange={caption => update(i, 'caption', caption)}
-            onRemove={() => remove(i)}
-          />
-        ))}
-      </div>
+    <div className="space-y-4">
+      {photos.length > 0 && (
+        <div className="grid grid-cols-3 gap-4">
+          {photos.map((p, i) => (
+            <PhotoCard
+              key={i}
+              photo={p}
+              onSrcChange={src => update(i, 'src', src)}
+              onCaptionChange={caption => update(i, 'caption', caption)}
+              onRemove={() => remove(i)}
+            />
+          ))}
+        </div>
+      )}
       <div className="flex gap-2">
         <button onClick={add} className="text-sm rounded-lg px-4 py-2 transition-colors"
           style={{ color: 'rgba(200,185,122,0.55)', background: 'rgba(200,185,122,0.06)' }}>
@@ -206,7 +209,7 @@ export function VideosEditor({ cityId, slug, initialVideos }: { cityId: number; 
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {videos.map((v, i) => (
         <div key={i} className="rounded-lg p-3 space-y-2" style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)' }}>
           {/* 标题 */}
@@ -271,16 +274,28 @@ export function VideosEditor({ cityId, slug, initialVideos }: { cityId: number; 
 
 export function DeleteButton({ cityId, cityName }: { cityId: number; cityName: string }) {
   const [pending, startTransition] = useTransition()
+  const [open, setOpen] = useState(false)
 
-  const handleDelete = () => {
-    if (!confirm(`确定要删除「${cityName}」吗？此操作不可撤销。`)) return
+  const handleConfirm = () => {
+    setOpen(false)
     startTransition(async () => {
       await deleteCity(cityId)
     })
   }
 
   return (
-    <DeleteBtn onClick={handleDelete} disabled={pending} label={pending ? '删除中...' : '删除此城市'} />
+    <>
+      <DeleteBtn onClick={() => setOpen(true)} disabled={pending} label={pending ? '删除中...' : '删除此城市'} />
+      <ConfirmDialog
+        open={open}
+        message={`确定要删除「${cityName}」吗？此操作不可撤销。`}
+        confirmText="删除"
+        cancelText="取消"
+        danger={true}
+        onConfirm={handleConfirm}
+        onCancel={() => setOpen(false)}
+      />
+    </>
   )
 }
 

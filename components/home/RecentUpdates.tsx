@@ -57,6 +57,16 @@ export default function RecentUpdates({ items }: { items: RecentItem[] }) {
         .ru-nav-btn { font-family: system-ui, sans-serif; font-size: 12px; color: rgba(255,255,255,.4); cursor: pointer; letter-spacing: .05em; transition: color .2s; background: none; border: none; }
         .ru-nav-btn:hover { color: #fff; }
         .ru-counter { font-family: system-ui, sans-serif; font-size: 12px; color: rgba(255,255,255,.3); margin-left: auto; }
+
+        @media (max-width: 768px) {
+          .ru-label { padding: 2rem 0 1rem; }
+          .ru-item { grid-template-columns: 1fr; grid-template-rows: 200px 1fr; height: auto; }
+          .ru-body { padding: 1.25rem 0; border-left: none; border-top: 0.5px solid rgba(255,255,255,.12); }
+          .ru-title { font-size: 20px; margin: .6rem 0; }
+          .ru-excerpt { font-size: 12px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+          .ru-nav { gap: 10px; }
+          .ru-nav-btn { font-size: 11px; }
+        }
       `}</style>
 
       <div className="ru-wrap">

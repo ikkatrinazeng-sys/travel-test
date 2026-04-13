@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer style={{ background: 'rgba(11, 23, 16, 0.92)', borderTop: '0.5px solid rgba(255,255,255,0.07)', padding: '3rem 2rem 2rem' }}>
+    <footer style={{ background: '#0b1710', borderTop: '0.5px solid rgba(255,255,255,0.07)', padding: '3rem 2rem 2rem' }}>
       <style>{`
         .footer-link { font-family: system-ui, sans-serif; font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.2s; }
         .footer-link:hover { color: rgba(255,255,255,0.9); }
@@ -46,7 +46,7 @@ export default function Footer() {
         {/* Bottom row */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
           <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.05em' }}>
-            © 2024 Vibe Syntax · All rights reserved
+            © 2026 Vibe Syntax · All rights reserved
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
             <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: 'rgba(200,185,122,0.4)', letterSpacing: '0.08em' }}>

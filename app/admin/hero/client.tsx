@@ -12,19 +12,20 @@ interface Polaroid {
 const iStyle = { background: '#1D1D1E', border: '1px solid #2B2B2D', color: 'rgba(255,255,255,0.85)' }
 
 // 预设动画参数池（12 组），新增时循环取用，前台效果自然随机
+// x: 10~75（百分比，避免超出屏幕），y: 15~75
 const ANIM_PRESETS = [
-  { x:  5, y: 48, rot:  8,  spd: 0.022, delay: 0.6, float: 'B' },
-  { x: -8, y: 32, rot: -5,  spd: 0.019, delay: 0.2, float: 'A' },
-  { x: 12, y: 55, rot: 11,  spd: 0.025, delay: 1.0, float: 'C' },
-  { x: -3, y: 20, rot: -9,  spd: 0.018, delay: 0.4, float: 'A' },
-  { x:  8, y: 62, rot:  4,  spd: 0.021, delay: 0.8, float: 'B' },
-  { x:-12, y: 44, rot: -12, spd: 0.024, delay: 0.1, float: 'C' },
-  { x:  2, y: 38, rot:  7,  spd: 0.020, delay: 1.2, float: 'A' },
-  { x: -6, y: 58, rot: -3,  spd: 0.023, delay: 0.5, float: 'B' },
-  { x: 10, y: 28, rot: 10,  spd: 0.017, delay: 0.9, float: 'C' },
-  { x: -1, y: 50, rot: -7,  spd: 0.026, delay: 0.3, float: 'A' },
-  { x:  6, y: 42, rot:  2,  spd: 0.022, delay: 1.4, float: 'B' },
-  { x:-10, y: 35, rot: -10, spd: 0.020, delay: 0.7, float: 'C' },
+  { x: 15, y: 48, rot:  8,  spd: 0.022, delay: 0.6, float: 'B' },
+  { x: 28, y: 32, rot: -5,  spd: 0.019, delay: 0.2, float: 'A' },
+  { x: 42, y: 55, rot: 11,  spd: 0.025, delay: 1.0, float: 'C' },
+  { x: 60, y: 22, rot: -9,  spd: 0.018, delay: 0.4, float: 'A' },
+  { x: 72, y: 62, rot:  4,  spd: 0.021, delay: 0.8, float: 'B' },
+  { x: 20, y: 44, rot: -12, spd: 0.024, delay: 0.1, float: 'C' },
+  { x: 50, y: 38, rot:  7,  spd: 0.020, delay: 1.2, float: 'A' },
+  { x: 35, y: 68, rot: -3,  spd: 0.023, delay: 0.5, float: 'B' },
+  { x: 65, y: 28, rot: 10,  spd: 0.017, delay: 0.9, float: 'C' },
+  { x: 10, y: 58, rot: -7,  spd: 0.026, delay: 0.3, float: 'A' },
+  { x: 55, y: 42, rot:  2,  spd: 0.022, delay: 1.4, float: 'B' },
+  { x: 40, y: 25, rot: -10, spd: 0.020, delay: 0.7, float: 'C' },
 ]
 
 function PolaroidRow({ it, i, onUpd, onRemove }: {

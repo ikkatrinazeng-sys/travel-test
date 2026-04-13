@@ -4,7 +4,7 @@ import ConditionalFooter from '@/components/layout/ConditionalFooter'
 import ConditionalNavbar from '@/components/layout/ConditionalNavbar'
 
 export const metadata: Metadata = {
-  title: 'Wanderlog · 旅行记录',
+  title: 'Vibe Syntax · 旅行记录',
   description: '记录19座城市的光影与故事',
 }
 

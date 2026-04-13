@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { updateCity } from '@/lib/actions/city'
 import { PhotosEditor, VideosEditor, DeleteButton, CoverUploader } from '@/components/admin/CityEditorWidgets'
+import RegionSelect from '@/components/admin/RegionSelect'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -23,7 +24,7 @@ export default async function EditCityPage({ params, searchParams }: Props) {
     <div className="w-full">
       {/* 面包屑 */}
       <div className="flex items-center gap-2 text-sm mb-10" style={{ color: 'rgba(255,255,255,0.3)' }}>
-        <Link href="/admin" className="hover:text-white transition-colors">城市管理</Link>
+        <Link href="/admin" className="hover:text-white transition-colors">城市详情</Link>
         <span style={{ color: 'rgba(255,255,255,0.15)' }}>/</span>
         <span style={{ color: 'rgba(255,255,255,0.6)' }}>{city.name}</span>
         <span style={{ color: 'rgba(255,255,255,0.15)' }}>/</span>
@@ -41,20 +42,16 @@ export default async function EditCityPage({ params, searchParams }: Props) {
         <input type="hidden" name="id" value={city.id} />
 
         <Section label="基础信息">
+          <input type="hidden" name="slug" value={city.slug} />
+          <input type="hidden" name="coverColor" value={city.coverColor} />
           <div className="grid grid-cols-2 gap-5">
             <Field label="城市名称" name="name" defaultValue={city.name} required />
-            <Field label="Slug（URL）" name="slug" defaultValue={city.slug} required />
             <Field label="国家" name="country" defaultValue={city.country} required />
             <div>
               <label className="block text-xs mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>地区</label>
-              <select name="region" defaultValue={city.region} className="w-full text-white text-sm rounded-lg px-3 py-2 focus:outline-none transition-colors" style={{ background: 'rgb(29,29,30)', border: '1px solid rgb(43,43,45)', color: 'rgba(255,255,255,0.85)' }}>
-                <option value="europe">欧洲</option>
-                <option value="east-asia">东亚</option>
-                <option value="southeast-asia">东南亚</option>
-              </select>
+              <RegionSelect value={city.region} />
             </div>
             <Field label="年份" name="year" type="number" defaultValue={String(city.year)} required />
-            <Field label="主题色（如 #c8b97a）" name="coverColor" defaultValue={city.coverColor} required />
           </div>
           <div className="mt-5">
             <Field label="简介" name="summary" defaultValue={city.summary} required />
@@ -149,7 +146,7 @@ function Field({ label, name, defaultValue, required, type = 'text' }: {
         name={name}
         defaultValue={defaultValue}
         required={required}
-        className="w-full text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none transition-colors"
+        className="admin-input w-full text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none transition-colors"
         style={{ background: 'rgb(29,29,30)', border: '1px solid rgb(43,43,45)', color: 'rgba(255,255,255,0.85)' }}
       />
     </div>
@@ -166,7 +163,7 @@ function Textarea({ label, name, defaultValue, rows = 4 }: {
         name={name}
         defaultValue={defaultValue}
         rows={rows}
-        className="w-full text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none transition-colors resize-y"
+        className="admin-textarea w-full text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none transition-colors resize-y"
         style={{ background: 'rgb(29,29,30)', border: '1px solid rgb(43,43,45)', color: 'rgba(255,255,255,0.85)' }}
       />
     </div>

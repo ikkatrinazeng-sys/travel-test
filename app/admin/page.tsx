@@ -23,7 +23,7 @@ export default async function AdminPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-xl font-medium text-white">城市管理</h1>
+          <h1 className="text-xl font-medium text-white">城市详情</h1>
           <p className="text-zinc-500 text-sm mt-1">共 {cities.length} 座城市</p>
         </div>
         <Link
@@ -35,8 +35,13 @@ export default async function AdminPage() {
         </Link>
       </div>
 
+      {cities.length === 0 ? (
+        <div className="text-center py-24 text-sm" style={{ color: 'rgba(255,255,255,0.2)' }}>
+          暂无城市，点击右上角「+ 新增城市」开始添加
+        </div>
+      ) : (
       <div className="space-y-8">
-        {(Object.keys(grouped) as string[]).map(region => (
+        {(Object.keys(grouped) as string[]).filter(region => grouped[region].length > 0).map(region => (
           <section key={region}>
             <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-widest mb-3">
               {regionLabel[region]}
@@ -76,6 +81,7 @@ export default async function AdminPage() {
           </section>
         ))}
       </div>
+      )}
     </div>
   )
 }

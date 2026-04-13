@@ -227,6 +227,25 @@ export default function AllCities({ cities }: { cities: CityData[] }) {
         .ac2-ft-arrow { width:24px; height:1px; background:#c8b97a; position:relative; transition:width .22s; }
         .ac2-ft-cta:hover .ac2-ft-arrow { width:32px; }
         .ac2-ft-arrow::after { content:''; position:absolute; right:0; top:-3px; width:6px; height:6px; border-right:1px solid #c8b97a; border-top:1px solid #c8b97a; transform:rotate(45deg); }
+
+        @media (max-width: 768px) {
+          .ac2-header { padding: 1.5rem 0 1rem; }
+          .ac2-stage { height: 380px; }
+          .ac2-watermark { font-size: 72px; bottom: -8px; right: 1rem; }
+          .ac2-tabs { top: 1rem; left: 0; gap: 1.2rem; }
+          .ac2-tab { font-size: 10px; letter-spacing: .10em; }
+          .ac2-preview { top: 1rem; right: 1rem; }
+          .ac2-preview-name { font-size: 20px; }
+          .ac2-city-btn { font-size: 26px; }
+          .ac2-city-btn.active { font-size: 32px; }
+          .ac2-thumb-img { width: 72px; height: 48px; }
+          .ac2-thumb-strip { gap: 8px; padding: 1rem 0; }
+          .ac2-featured { height: 340px; }
+          .ac2-featured-content { left: 1rem; max-width: calc(100% - 2rem); }
+          .ac2-ft-name { font-size: clamp(32px,8vw,52px); }
+          .ac2-ft-cta { margin-top: 1.25rem; }
+          .ac2-featured-mosaic { grid-template-columns: repeat(2,1fr); }
+        }
       `}</style>
 
       <div className="ac2-wrap" id="all-cities">

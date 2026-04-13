@@ -6,11 +6,19 @@ import { getCitiesForHome } from '@/lib/actions/city'
 
 export const revalidate = 3600
 
+// 带超时的 Promise 包装，避免数据库慢查询阻塞 SSR
+function withTimeout<T>(promise: Promise<T>, ms = 5000, fallback: T): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>(resolve => setTimeout(() => resolve(fallback), ms)),
+  ])
+}
+
 export default async function HomePage() {
   const [polaroids, recentItems, cities] = await Promise.all([
-    getHeroPolaroids(),
-    getRecentUpdates(),
-    getCitiesForHome(),
+    withTimeout(getHeroPolaroids(), 5000, []),
+    withTimeout(getRecentUpdates(), 5000, []),
+    withTimeout(getCitiesForHome(), 5000, []),
   ])
 
   return (
