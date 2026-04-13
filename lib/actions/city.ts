@@ -14,6 +14,21 @@ export async function getCitiesForHome() {
   })
 }
 
+// ─── 更新封面图（所有城市模块专用） ──────────────────────
+export async function updateCityCover(
+  id: number,
+  slug: string,
+  data: { coverPhoto: string; coverThumb: string }
+) {
+  await prisma.city.update({
+    where: { id },
+    data: { coverPhoto: data.coverPhoto, coverThumb: data.coverThumb },
+  })
+  revalidatePath('/')
+  revalidatePath(`/cities/${slug}`)
+  revalidatePath('/admin/all-cities')
+}
+
 export async function getCities() {
   return prisma.city.findMany({
     include: { photos: { orderBy: { order: 'asc' } }, videos: { orderBy: { order: 'asc' } }, guide: true, story: true },

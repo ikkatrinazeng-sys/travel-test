@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react'
 const NAV_ITEMS = [
   { href: '/admin/hero', label: '拍立得', exact: false },
   { href: '/admin/recent-updates', label: '最近更新', exact: false },
+  { href: '/admin/all-cities', label: '所有城市', exact: false },
   { href: '/admin/photography', label: '摄影页', exact: false },
   { href: '/admin', label: '城市详情', exact: true },
 ]
