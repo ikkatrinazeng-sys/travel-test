@@ -16,6 +16,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN" data-scroll-behavior="smooth">
+      <head>
+        {/* 在 JS hydration 之前同步禁用滚动恢复，防止刷新时定位到中间 */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          if (typeof window !== 'undefined') {
+            window.history.scrollRestoration = 'manual';
+          }
+        `}} />
+      </head>
       <body className="min-h-screen" style={{ background: '#0e1c10' }}>
         <ScrollToTop />
         <ConditionalNavbar />
