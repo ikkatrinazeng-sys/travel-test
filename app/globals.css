@@ -12,11 +12,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 平滑滚动 */
-html {
-  scroll-behavior: smooth;
-}
-
 /* ==================== Hero 组件 ==================== */
 @keyframes floatLis {
   0%   { transform: translate(0, 0) rotate(var(--r)); }

@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" data-scroll-behavior="smooth">
       <body className="min-h-screen" style={{ background: '#0e1c10' }}>
         <ScrollToTop />
         <ConditionalNavbar />
