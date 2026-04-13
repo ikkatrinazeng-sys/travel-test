@@ -2,6 +2,7 @@
 
 import { useTransition, useState } from 'react'
 import { updateCityCover } from '@/lib/actions/city'
+import { DeleteCityButton } from '@/components/admin/DeleteCityButton'
 
 interface CityItem {
   id: number
@@ -57,7 +58,7 @@ function CoverRow({ city }: { city: CityItem }) {
           <span className="text-white text-sm font-medium">{city.name}</span>
           <span className="text-zinc-500 text-sm ml-2">· {city.country}</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {saved && (
             <span className="text-xs" style={{ color: '#c8b97a' }}>✓ 已保存</span>
           )}
@@ -73,6 +74,7 @@ function CoverRow({ city }: { city: CityItem }) {
           >
             {isPending ? '保存中…' : '保存'}
           </button>
+          <DeleteCityButton cityId={city.id} cityName={city.name} />
         </div>
       </div>
 
