@@ -9,8 +9,13 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const cities = await getCities()
-  return cities.map((c: { slug: string }) => ({ slug: c.slug }))
+  try {
+    const cities = await getCities()
+    return cities.map((c: { slug: string }) => ({ slug: c.slug }))
+  } catch {
+    // 构建时数据库不可用，返回空数组，页面改为按需 ISR 生成
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -23,7 +28,9 @@ export async function generateMetadata({ params }: Props) {
   }
 }
 
-export const revalidate = 3600
+export const revalidate = 60
+// 构建时未预渲染的路径，按需生成后缓存
+export const dynamicParams = true
 
 export default async function CityPage({ params }: Props) {
   const { slug } = await params
