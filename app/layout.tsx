@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import ConditionalFooter from '@/components/layout/ConditionalFooter'
 import ConditionalNavbar from '@/components/layout/ConditionalNavbar'
+import ScrollToTop from '@/components/layout/ScrollToTop'
 
 export const metadata: Metadata = {
   title: 'Vibe Syntax · 旅行记录',
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className="min-h-screen" style={{ background: '#0e1c10' }}>
+        <ScrollToTop />
         <ConditionalNavbar />
         {children}
         <ConditionalFooter />
