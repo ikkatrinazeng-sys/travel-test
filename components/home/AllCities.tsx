@@ -78,11 +78,15 @@ export default function AllCities({ cities }: { cities: CityData[] }) {
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const thumbStripRef = useRef<HTMLDivElement>(null)
 
-  // Mount 后将缩略图滚动到 Paris
+  // Mount 后将缩略图条水平滚动到 Paris（只改横向，不触发页面纵向滚动）
   useEffect(() => {
     const timer = setTimeout(() => {
-      const el = thumbStripRef.current?.querySelector('[data-city="Paris"]') as HTMLElement
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+      const strip = thumbStripRef.current
+      const el = strip?.querySelector('[data-city="Paris"]') as HTMLElement
+      if (strip && el) {
+        const offset = el.offsetLeft - strip.clientWidth / 2 + el.clientWidth / 2
+        strip.scrollTo({ left: offset, behavior: 'smooth' })
+      }
     }, 300)
     return () => clearTimeout(timer)
   }, [])
@@ -101,8 +105,12 @@ export default function AllCities({ cities }: { cities: CityData[] }) {
     setFtIn(false)
     setTimeout(() => { setFeaturedCity(name); setFtIn(true) }, 30)
     setTimeout(() => {
-      const el = thumbStripRef.current?.querySelector(`[data-city="${name}"]`) as HTMLElement
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+      const strip = thumbStripRef.current
+      const el = strip?.querySelector(`[data-city="${name}"]`) as HTMLElement
+      if (strip && el) {
+        const offset = el.offsetLeft - strip.clientWidth / 2 + el.clientWidth / 2
+        strip.scrollTo({ left: offset, behavior: 'smooth' })
+      }
     }, 50)
   }, [])
 
